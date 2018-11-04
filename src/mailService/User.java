@@ -6,49 +6,64 @@ import java.security.Key;
 public class User {
 
 //variables=====================================================================
-    private String username;
+    private int id;
+    private String user_name;
     private String password;
-    private Key key;
+    private String role;
 
 //constructors==================================================================
-    public User(){}
-    public User(String username, String password){
-        this.username=username;
+    public User(){
+        this.role="simple";
+    }
+    
+    public User(String user_name, String password){
+        this.user_name=user_name;
         this.password=password;
-        
+    }
+    
+    public User(int id, String user_name, String password, String role){
+        this.id=id;
+        this.user_name=user_name;
+        this.password=password;
+        this.role=role;
     }
 
 //setters & getters=============================================================
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
     }
 
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public void setKey(Key key) {
-        this.key = key;
+    public void setRole(String role) {
+        this.role = role;
     }
     
-    public String getUsername() {
-        return username;
+    public int getId() {
+        return id;
+    }
+
+    public String getUser_name() {
+        return user_name;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public Key getKey() {
-        return key;
+    public String getRole() {
+        return role;
     }
 
 //methods=======================================================================
 
 
 //main==========================================================================
-
-
 
 }//~class
