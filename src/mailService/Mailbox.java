@@ -17,6 +17,7 @@ public class Mailbox {
     public static final String URL= "jdbc:mysql://127.0.0.1:3306/mailservice";
     public static final String USR="admin";
     public static final String PSD="admin";
+    public static final ProcessBuilder b=new ProcessBuilder("cmd", "/c", "cls");
 
 //methods=======================================================================
     public static List<User> createUserList() throws SQLException{
@@ -65,11 +66,10 @@ public class Mailbox {
         catch(IOException e) {}  
     }
 //main==========================================================================
-    public static void main (String args[]) throws SQLException, IOException, InterruptedException{
-        ProcessBuilder b=new ProcessBuilder("cmd", "/c", "cls");
+    public static void main (String args[]) throws SQLException, IOException, InterruptedException{        
         db.connect(URL,USR,PSD);
         list1=createUserList();        
-        b.inheritIO().start().waitFor();
+        b.inheritIO().start().waitFor(); //cls
         logInScreen();
         db.connection.close();
         sc.close();
