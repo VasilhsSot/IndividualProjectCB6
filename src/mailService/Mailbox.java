@@ -65,9 +65,11 @@ public class Mailbox {
         catch(IOException e) {}  
     }
 //main==========================================================================
-    public static void main (String args[]) throws SQLException{
+    public static void main (String args[]) throws SQLException, IOException, InterruptedException{
+        ProcessBuilder b=new ProcessBuilder("cmd", "/c", "cls");
         db.connect(URL,USR,PSD);
-        list1=createUserList();
+        list1=createUserList();        
+        b.inheritIO().start().waitFor();
         logInScreen();
         db.connection.close();
         sc.close();
