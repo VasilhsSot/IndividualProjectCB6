@@ -14,6 +14,7 @@ public class User {
     }
     public User (int id){
         this.id=id;
+        this.role="simple";
     }
     public User(int id, String user_name, String password){
         this.id=id;

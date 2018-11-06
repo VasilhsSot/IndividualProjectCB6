@@ -10,7 +10,7 @@ public class LogInScreen {
 //methods=======================================================================
     public static User logInScreen(User us, List<User> list){
         String u,p;
-        System.out.println("Enter your username: ");
+        System.out.println("\nEnter your username: ");
         u=sc.nextLine();
         System.out.println("Enter your password: ");
         p=sc.nextLine();
@@ -26,11 +26,9 @@ public class LogInScreen {
             if(user_name.equals(us.getUser_name())){
                 bool=false;
                 u= new User(us.getId(),us.getUser_name(),us.getPassword(),us.getRole());
-                if (u.getUser_name().equals("admin")) {System.out.println ("\n\nWell well well.. the admin is here.. Welcome!");}
-                else {System.out.println("\n\nWelcome to your mailbox mr."+u.getUser_name()+" !\n\n");}
-            }
+                }
         }
-        if (bool) System.out.println("There's no user with the credentials you provided. ");
+        if (bool) System.out.println("\nThere's no user with the credentials you provided. \n\n");
         return u;
     }
 
