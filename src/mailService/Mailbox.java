@@ -112,12 +112,12 @@ public class Mailbox {
         }else System.out.println("Can't find the user "+username);
     }
     
-    /* TO DO
+    
     public static void editMessages(String u){}
     
     public static void deleteMessages (String u){}
     
-    public static void createNew(){} */
+    public static void createNew(){}
     
     public static boolean systemLogIn(){
         boolean bool1=true;
