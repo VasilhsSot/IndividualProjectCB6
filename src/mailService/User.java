@@ -1,8 +1,5 @@
 package mailService;
 
-import java.security.Key;
-
-
 public class User {
 
 //variables=====================================================================
@@ -15,10 +12,14 @@ public class User {
     public User(){
         this.role="simple";
     }
-    
-    public User(String user_name, String password){
+    public User (int id){
+        this.id=id;
+    }
+    public User(int id, String user_name, String password){
+        this.id=id;
         this.user_name=user_name;
         this.password=password;
+        this.role="simple";
     }
     
     public User(int id, String user_name, String password, String role){
@@ -61,9 +62,8 @@ public class User {
         return role;
     }
 
-//methods=======================================================================
-
-
-//main==========================================================================
-
+    @Override
+    public String toString(){
+        return this.getUser_name();
+    }
 }//~class
