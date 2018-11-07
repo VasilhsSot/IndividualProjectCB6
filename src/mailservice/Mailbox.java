@@ -108,12 +108,11 @@ public class Mailbox {
             try{ //write to receiver's file  
                 PrintWriter w;
                 w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
-                w.write(date+" "+u.getUser_name()+" to "+username+" \nmessage: "+mes+"\n");
+                w.write(date+" "+u.getUser_name()+" to "+username+" \nmessage: "+mes+"\n\n\n");
                 w.close();
             }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
         }else System.out.println("Can't find the user "+username+".\n\n");
-    }
-    
+    }    
     
     public static void editMessages(String username){
         
@@ -123,8 +122,45 @@ public class Mailbox {
     
     }
     
-    public static void createNew(){
-    
+    public static void createNew() throws SQLException{
+        boolean tycheck=true, user_ex=false, bool=true;
+        String ty="normal",username="";
+        while(bool){
+            user_ex=false;
+            System.out.println("Type the username of the new user. ");
+            username=sc.nextLine();
+            for (User user: list1){
+                if (user.getUser_name().equals(username)) {
+                    user_ex=true;
+                    System.out.println("This username already exists. Please choose a different one. ");                    
+                }
+            }
+            if (!user_ex) bool=false;
+        }
+        if (!user_ex){
+            System.out.println("Type the password of user \""+username+"\".. ");
+            String pas=sc.nextLine();
+            while(tycheck){
+                System.out.println("What user type is "+username+" gonna be? (normal, medium, super)");
+                ty=sc.nextLine();
+                if (ty.equals("normal") || ty.equals("medium") ||ty.equals("super")) {
+                    tycheck=false;
+                }else System.out.println("Wrong input. User's role can only be \"normal\", \"medium\" or \"super\".. ");
+            }
+            String query1="insert into users (id,user_name,role) values (null,'"+username+"','"+ty+"');";
+            db.executeStatement(query1);
+            String query2="select id from users where user_name='"+username+"';";
+            db.stm=db.connection.createStatement();
+            ResultSet rs=db.stm.executeQuery(query2);
+            int nid=-1;
+            while (rs.next()){
+                nid=rs.getInt("id");
+            }
+            String query3="insert into passwords (id, user_password) values ("+nid+",'"+pas+"');";
+            db.executeStatement(query3);
+            System.out.println("User "+username+" created successfully!! ");
+            list1=createUserList();
+        }
     }
     
     public static void changeUserType(String username) throws SQLException{
