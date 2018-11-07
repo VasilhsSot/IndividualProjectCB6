@@ -65,6 +65,6 @@ public class User {
 
     @Override
     public String toString(){
-        return this.getUser_name();
+        return this.getUser_name()+this.getRole();
     }
 }//~class

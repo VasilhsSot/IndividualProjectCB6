@@ -34,8 +34,9 @@ public class Mailbox {
         db.stm=db.connection.createStatement();
         ResultSet rs=db.stm.executeQuery(q);
         while(rs.next()){
-            User b= new User(rs.getInt("id"),rs.getString("user_name"),rs.getString("role"),rs.getString("user_password"));
+            User b= new User(rs.getInt("id"),rs.getString("user_name"),rs.getString("user_password"),rs.getString("role"));
             l1.add(b);
+            System.out.println(b);
             }
         } catch (SQLException e){
             System.out.println("Problem with your query. ");
@@ -50,7 +51,7 @@ public class Mailbox {
             db.stm=db.connection.createStatement();
             ResultSet rs=db.stm.executeQuery(q);
             while(rs.next()){
-                l2.add("Date:"+rs.getString("date")+", Sender: "+rs.getString("sender")+", Receiver: "+username+", \nMessage: "+rs.getString("message"));
+                l2.add("Date:"+rs.getString("Date")+", Sender: "+rs.getString("sender")+", Receiver: "+username+", \nMessage: "+rs.getString("message"));
             }
         }catch (SQLException e){
             System.out.println("Problem with your query. ");
@@ -64,15 +65,16 @@ public class Mailbox {
         for (String s: list){
             System.out.println("\n\n"+s);
         }
+        System.out.println("\n\n");
     }
     
     public static void viewMessages(String us) throws SQLException{
         List<String>list=new ArrayList<>();
-        boolean check=false;
+        boolean check=true;
         for (User u:list1){
-            if (u.getUser_name().equals("us")){check=true; break;}
+            if (u.getUser_name().equals(us)){check=false; break;}
         }
-        if (!check){System.out.println("The username you provided doesn't exist in the mailbox. ");}
+        if (check){System.out.println("The username you provided doesn't exist in the mailbox. ");}
         else {list=createMessageList(us);
                for (String s: list){
                System.out.println("\n\n"+s);
@@ -101,23 +103,52 @@ public class Mailbox {
                 break;}
         }
         if (is){
-        String q="insert into inbox_messages (id,user_id,sender,date,message) values (null,"+uid+",'"+u.getUser_name()+"','"+date+"','"+mes+"');";
-        db.executeStatement(q);
-        try{ //write to receiver's file  
-            PrintWriter w;
-            w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
-            w.write(date+" "+u.getUser_name()+" to "+username+" \nmessage: "+mes+"\n");
-            w.close();
-        }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
-        }else System.out.println("Can't find the user "+username);
+            String q="insert into inbox_messages (id,user_id,sender,date,message) values (null,"+uid+",'"+u.getUser_name()+"','"+date+"','"+mes+"');";
+            db.executeStatement(q);
+            try{ //write to receiver's file  
+                PrintWriter w;
+                w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
+                w.write(date+" "+u.getUser_name()+" to "+username+" \nmessage: "+mes+"\n");
+                w.close();
+            }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
+        }else System.out.println("Can't find the user "+username+".\n\n");
     }
     
     
-    public static void editMessages(String u){}
+    public static void editMessages(String username){
+        
+    }
     
-    public static void deleteMessages (String u){}
+    public static void deleteMessages (String u){
     
-    public static void createNew(){}
+    }
+    
+    public static void createNew(){
+    
+    }
+    
+    public static void changeUserType(String username) throws SQLException{
+        boolean is=false, indeed=true;
+        int uid=-1;
+        for (User us: list1){
+            if (us.getUser_name().equals(username)){
+                is=true; 
+                uid=us.getId(); 
+                break;}
+        }
+        if (is){
+            while(indeed){
+                System.out.println("What type of user you want "+username+" to be? (normal, medium, super)");
+                String ntype=sc.nextLine();
+                if (ntype.equals("normal") || ntype.equals("medium") || ntype.equals("super")){
+                    indeed=false;
+                    String query="update users set role='"+ntype+"' where id="+uid+";";
+                    db.executeStatement(query);
+                    list1=createUserList();
+                }else System.out.println("Wrong input. User's role can only be normal, medium or super.. ");
+                    }
+        }else System.out.println("Can't find the user "+username+".\n\n");
+    }
     
     public static boolean systemLogIn(){
         boolean bool1=true;
@@ -143,14 +174,14 @@ public class Mailbox {
             System.out.println ("\n\nWell well well.. the admin is here.. Welcome!");
         }
         else {
-            System.out.println("\n\nWelcome to your mailbox mr."+u.getUser_name()+" !\n\n");
+            System.out.println("\n\nWelcome to your mailbox mr."+u.getUser_name()+" !");
         }
         while (bool2){
-            System.out.println("What action do you want to do? \n\n"); 
+            System.out.println("\n\n\nWhat action do you want to do? \n"); 
             System.out.println("1. Exit. \n2. View your messages. \n3. Send a message. \n4. View messages of another user. ");
             if (u.getRole().equals("medium") || u.getRole().equals("super")) {System.out.println("5. Edit someone's message(s). ");}
             if (u.getRole().equals("super")){System.out.println("6. Delete someone's message(s). ");}
-            if (u.getUser_name().equals("admin"))System.out.println("7. Create new user. ");
+            if (u.getUser_name().equals("admin"))System.out.println("7. Create new user. \n8. Change a user's type. (normal, medium, super)");
             ch=sc.nextLine();
             bool2=chooseCh(ch);
         }
@@ -190,16 +221,27 @@ public class Mailbox {
                         else {System.out.println("Invalid input. Please select 1-4.. \n"); break;}
             
             case "7" :  if (u.getUser_name().equals("admin")) {createNew(); break;}
-                        else {if (u.getRole().equals("normal"))System.out.println("Invalid input. Please select 1-4.. \n");
-                        if (u.getRole().equals("medium"))System.out.println("Invalid input. Please select 1-5.. \n");
-                        if (u.getRole().equals("super"))System.out.println("Invalid input. Please select 1-6.. \n");
+                        else {
+                            if (u.getRole().equals("normal"))System.out.println("Invalid input. Please select 1-4.. \n");
+                            if (u.getRole().equals("medium"))System.out.println("Invalid input. Please select 1-5.. \n");
+                            if (u.getRole().equals("super"))System.out.println("Invalid input. Please select 1-6.. \n");
                         break;}
-                        
+            
+            case "8" :  if (u.getUser_name().equals("admin")) {
+                        System.out.println("Please enter the username you want to change the type.. ");
+                        String o=sc.nextLine();
+                        changeUserType(o); break;
+                        }
+                        else {
+                            if (u.getRole().equals("normal"))System.out.println("Invalid input. Please select 1-4.. \n");
+                            if (u.getRole().equals("medium"))System.out.println("Invalid input. Please select 1-5.. \n");
+                            if (u.getRole().equals("super"))System.out.println("Invalid input. Please select 1-6.. \n");
+                        break;}
                         
             default :   if (u.getRole().equals("normal"))System.out.println("Invalid input. Please select 1-4.. \n");
                         if (u.getRole().equals("medium"))System.out.println("Invalid input. Please select 1-5.. \n");
                         if (u.getRole().equals("super") && !u.getUser_name().equals("admin"))System.out.println("Invalid input. Please select 1-6.. \n");
-                        if (u.getUser_name().equals("admin"))System.out.println("Invalid input. Please select 1-7.. \n");
+                        if (u.getUser_name().equals("admin"))System.out.println("Invalid input. Please select 1-8.. \n");
                         break;
         }
         return bool3;
