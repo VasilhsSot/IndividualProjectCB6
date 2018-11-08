@@ -36,7 +36,6 @@ public class Mailbox {
         while(rs.next()){
             User b= new User(rs.getInt("id"),rs.getString("user_name"),rs.getString("user_password"),rs.getString("role"));
             l1.add(b);
-            System.out.println(b);
             }
         } catch (SQLException e){
             System.out.println("Problem with your query. ");
@@ -46,12 +45,12 @@ public class Mailbox {
     
     public static List<String> createMessageList(String username) throws SQLException{
         List<String> l2=new ArrayList<>();
-        String q="select date,sender,message from inbox_messages as m left join users on m.user_id=users.id and users.user_name='"+username+"';";
+        String q="select id,date,sender,message from inbox_messages as m left join users on m.user_id=users.id and users.user_name='"+username+"';";
         try{
             db.stm=db.connection.createStatement();
             ResultSet rs=db.stm.executeQuery(q);
             while(rs.next()){
-                l2.add("Date:"+rs.getString("Date")+", Sender: "+rs.getString("sender")+", Receiver: "+username+", \nMessage: "+rs.getString("message"));
+                l2.add("Message id:"+rs.getInt("id")+"\nDate:"+rs.getString("Date")+", Sender: "+rs.getString("sender")+", Receiver: "+username+", \nMessage: "+rs.getString("message"));
             }
         }catch (SQLException e){
             System.out.println("Problem with your query. ");
@@ -114,12 +113,30 @@ public class Mailbox {
         }else System.out.println("Can't find the user "+username+".\n\n");
     }    
     
-    public static void editMessages(String username){
-        
+    public static void editMessages(String username) throws SQLException{
+        List<String> l=new ArrayList<>();
+        l=createMessageList(username);
+        System.out.println("Choose the message you would like to edit by choosing the message id. \n");
+        for(String s:l){
+            System.out.println(s);
+        }
+        String ed=sc.nextLine();
+        System.out.println("Write a new message to replace this one. ");
+        String nm=sc.nextLine();
+        String query="update inbox_messages set message='"+nm+"' where id="+ed+";";
+        db.executeStatement(query);
     }
     
-    public static void deleteMessages (String u){
-    
+    public static void deleteMessages (String username) throws SQLException{
+        List<String> l=new ArrayList<>();
+        l=createMessageList(username);
+        System.out.println("Choose the message you would like to delete by choosing the message id. \n");
+        for(String s:l){
+            System.out.println(s);
+        }
+        String ed=sc.nextLine();
+        String query="delete from inbox_messages where id='"+ed+"';";
+        db.executeStatement(query);
     }
     
     public static void createNew() throws SQLException{
