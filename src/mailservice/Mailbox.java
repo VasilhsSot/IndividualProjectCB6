@@ -62,9 +62,9 @@ public class Mailbox {
         List<String>list=new ArrayList<>();
         list=createMessageList(u.getUser_name());
         for (String s: list){
-            System.out.println("\n\n"+s);
+            System.out.println("\n"+s);
         }
-        System.out.println("\n\n");
+        System.out.println("\n");
     }
     
     public static void viewMessages(String us) throws SQLException{
@@ -172,7 +172,7 @@ public class Mailbox {
             String query3="insert into passwords (id, user_password) values ("+nid+",'"+pas+"');";
             db.executeStatement(query3);
             System.out.println("User "+username+" created successfully!! ");
-            list1=createUserList();
+            list1=createUserList();            
         }
     }
     
@@ -216,15 +216,10 @@ public class Mailbox {
         return bool1;
     }
     
-    public static boolean showMenu() throws SQLException{
+    public static boolean showMenu() throws SQLException, IOException, InterruptedException{
+        b.inheritIO().start().waitFor(); //cls
         String ch;
         boolean bool2=true;
-        if (u.getUser_name().equals("admin")) {
-            System.out.println ("\n\nWell well well.. the admin is here.. Welcome!");
-        }
-        else {
-            System.out.println("\n\nWelcome to your mailbox mr."+u.getUser_name()+" !");
-        }
         while (bool2){
             System.out.println("\n\n\nWhat action do you want to do? \n"); 
             System.out.println("1. Exit. \n2. View your messages. \n3. Send a message. \n4. View messages of another user. ");
@@ -243,6 +238,7 @@ public class Mailbox {
             case "1" :  bool3=false;
                         break;
             case "2" :  viewMyMessages();
+                        pressAnyKeyToContinue();
                         break;
             case "3" :  System.out.println("Send message to? ");
                         String k=sc.nextLine();
@@ -251,13 +247,15 @@ public class Mailbox {
                         
             case "4" :  System.out.println("Enter the username of the user you want to view the inbox.. ");
                         String l=sc.nextLine();
-                        viewMessages(l);                        
+                        viewMessages(l);
+                        pressAnyKeyToContinue();
                         break;
                         
             case "5" :  if (u.getRole().equals("super") || u.getRole().equals("medium")){
                         System.out.println("Enter the username of the user you want to edit messages from his/her inbox.. ");
                         String m=sc.nextLine();
                         editMessages(m);
+                        pressAnyKeyToContinue();
                         break;} 
                         else {System.out.println("Invalid input. Please select 1-4.. \n"); break;}
                         
@@ -265,11 +263,12 @@ public class Mailbox {
                         System.out.println("Enter the username of the user you want to delete messages from his/her inbox.. ");
                         String n=sc.nextLine();
                         deleteMessages(n);
+                        pressAnyKeyToContinue();
                         break;} 
                         else if (u.getRole().equals("medium")){System.out.println("Invalid input. Please select 1-5.. \n"); break;}
                         else {System.out.println("Invalid input. Please select 1-4.. \n"); break;}
             
-            case "7" :  if (u.getUser_name().equals("admin")) {createNew(); break;}
+            case "7" :  if (u.getUser_name().equals("admin")) {createNew(); pressAnyKeyToContinue(); break;}
                         else {
                             if (u.getRole().equals("normal"))System.out.println("Invalid input. Please select 1-4.. \n");
                             if (u.getRole().equals("medium"))System.out.println("Invalid input. Please select 1-5.. \n");
@@ -279,7 +278,9 @@ public class Mailbox {
             case "8" :  if (u.getUser_name().equals("admin")) {
                         System.out.println("Please enter the username you want to change the type.. ");
                         String o=sc.nextLine();
-                        changeUserType(o); break;
+                        changeUserType(o); 
+                        pressAnyKeyToContinue();
+                        break;
                         }
                         else {
                             if (u.getRole().equals("normal"))System.out.println("Invalid input. Please select 1-4.. \n");
@@ -307,6 +308,7 @@ public class Mailbox {
         boolean bool1=true;
         while (bool1){
         bool1=showMenu();
+//        b.inheritIO().start().waitFor(); //cls
         }
         db.connection.close();
         sc.close();
