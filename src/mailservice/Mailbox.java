@@ -45,7 +45,7 @@ public class Mailbox {
     
     public static List<String> createMessageList(String username) throws SQLException{
         List<String> l2=new ArrayList<>();
-        String q="select id,date,sender,message from inbox_messages as m left join users on m.user_id=users.id and users.user_name='"+username+"';";
+        String q="select m.id,date,sender,message from inbox_messages as m left join users on m.user_id=users.id and users.user_name='"+username+"';";
         try{
             db.stm=db.connection.createStatement();
             ResultSet rs=db.stm.executeQuery(q);
@@ -114,12 +114,8 @@ public class Mailbox {
     }    
     
     public static void editMessages(String username) throws SQLException{
-        List<String> l=new ArrayList<>();
-        l=createMessageList(username);
         System.out.println("Choose the message you would like to edit by choosing the message id. \n");
-        for(String s:l){
-            System.out.println(s);
-        }
+        viewMessages(username);
         String ed=sc.nextLine();
         System.out.println("Write a new message to replace this one. ");
         String nm=sc.nextLine();
