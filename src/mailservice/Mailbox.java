@@ -146,6 +146,7 @@ public class Mailbox {
             PrintWriter w;
                 w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
                 w.write(date+" \""+u.getUser_name()+"\" edited message with id:"+ed+" to\nmessage: "+nm+"\n\n\n");
+                w.close();
         }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
     }
     
@@ -165,6 +166,7 @@ public class Mailbox {
             PrintWriter w;
                 w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
                 w.write(date+" \""+u.getUser_name()+"\" deleted message with id:"+ed+".\n\n\n");
+                w.close();
         }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
     }
     
