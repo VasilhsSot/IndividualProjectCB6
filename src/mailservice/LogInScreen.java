@@ -14,9 +14,7 @@ public class LogInScreen {
         String u,p;
         System.out.println("\nEnter your username: ");
         u=sc.nextLine();
-        System.out.println("Enter your password: ");
-        p=sc.nextLine();
-//        p=PasswordField.readPassword("Enter your password: ");
+        p=PasswordField.readPassword("Enter your password: ");
         us=logIn(u,p,list);
         return us;
     }
