@@ -1,5 +1,7 @@
 package mailservice;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 
@@ -29,6 +31,8 @@ public class LogInScreen {
                 }
         }
         if (bool) System.out.println("\nThere's no user with the credentials you provided. \n\n");
+        String timeNow=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
+        u.setTimeIn(timeNow);
         return u;
     }
 

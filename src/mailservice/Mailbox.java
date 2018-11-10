@@ -45,12 +45,12 @@ public class Mailbox {
     
     public static List<String> createMessageList(String username) throws SQLException{
         List<String> l2=new ArrayList<>();
-        String q="select m.id,date,sender,message from inbox_messages as m left join users on m.user_id=users.id and users.user_name='"+username+"';";
+        String q="select inbox_messages.id,date,sender,message from inbox_messages inner join users on inbox_messages.user_id=users.id and users.user_name='"+username+"';";
         try{
             db.stm=db.connection.createStatement();
             ResultSet rs=db.stm.executeQuery(q);
             while(rs.next()){
-                l2.add("Message id:"+rs.getInt("id")+"\nDate:"+rs.getString("Date")+", Sender: "+rs.getString("sender")+", Receiver: "+username+", \nMessage: "+rs.getString("message"));
+                l2.add("\nMessage id:"+rs.getInt("id")+"\nDate:"+rs.getString("Date")+", Sender: "+rs.getString("sender")+", Receiver: "+username+", \nMessage: "+rs.getString("message"));
             }
         }catch (SQLException e){
             System.out.println("Problem with your query. ");
@@ -62,7 +62,7 @@ public class Mailbox {
         List<String>list=new ArrayList<>();
         list=createMessageList(u.getUser_name());
         for (String s: list){
-            System.out.println("\n"+s);
+            System.out.println(s);
         }
         System.out.println("\n");
     }
@@ -89,12 +89,13 @@ public class Mailbox {
         catch(IOException e) {}  
     }
     
-    public static void sendMessage(String username){
+    public static void sendMessage(String username) throws SQLException{
+        String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
+        topAnnouncement(date,username);
         boolean is=false;
         int uid=-1;
         System.out.println("\nType your message (max 250 characters): ");
         String mes=sc.nextLine();
-        String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
         for (User us: list1){
             if (us.getUser_name().equals(username)){
                 is=true; 
@@ -113,29 +114,62 @@ public class Mailbox {
         }else System.out.println("Can't find the user "+username+".\n\n");
     }    
     
+    public static void topAnnouncement(String date,String username) throws SQLException{        
+        String query1="select id from users where user_name='"+username+"';";
+        db.stm=db.connection.createStatement();
+        ResultSet rs=db.stm.executeQuery(query1);
+        int nid=-1;
+        while (rs.next()){
+            nid=rs.getInt("id");
+        }
+        String query2="select timeout from last_online where id="+nid+";";
+        db.stm=db.connection.createStatement();
+        ResultSet rs2=db.stm.executeQuery(query2);
+        String timeOut="";
+        while (rs2.next()){
+            timeOut=rs2.getString("timeout");
+        }
+        System.out.println("User: \""+username+"\" is offline for: "+User.diffTime(date, timeOut)+" minutes.\n");
+    }
+    
     public static void editMessages(String username) throws SQLException{
+        String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
+        topAnnouncement(date,username);
         System.out.println("Choose the message you would like to edit by choosing the message id. \n");
         viewMessages(username);
         String ed=sc.nextLine();
         System.out.println("Write a new message to replace this one. ");
         String nm=sc.nextLine();
-        String query="update inbox_messages set message='"+nm+"' where id="+ed+";";
-        db.executeStatement(query);
+        String query3="update inbox_messages set message='"+nm+"' where id="+ed+";";
+        db.executeStatement(query3);        
+        try{
+            PrintWriter w;
+                w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
+                w.write(date+" \""+u.getUser_name()+"\" edited message with id:"+ed+" to\nmessage: "+nm+"\n\n\n");
+        }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
     }
     
     public static void deleteMessages (String username) throws SQLException{
         List<String> l=new ArrayList<>();
         l=createMessageList(username);
+        String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
+        topAnnouncement(date,username);
         System.out.println("Choose the message you would like to delete by choosing the message id. \n");
         for(String s:l){
             System.out.println(s);
         }
         String ed=sc.nextLine();
-        String query="delete from inbox_messages where id='"+ed+"';";
-        db.executeStatement(query);
+        String query3="delete from inbox_messages where id='"+ed+"';";
+        db.executeStatement(query3);        
+        try{
+            PrintWriter w;
+                w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
+                w.write(date+" \""+u.getUser_name()+"\" deleted message with id:"+ed+".\n\n\n");
+        }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
     }
     
     public static void createNew() throws SQLException{
+        String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
         boolean tycheck=true, user_ex=false, bool=true;
         String ty="normal",username="";
         while(bool){
@@ -171,6 +205,8 @@ public class Mailbox {
             }
             String query3="insert into passwords (id, user_password) values ("+nid+",'"+pas+"');";
             db.executeStatement(query3);
+            String query4="insert into last_online (id, timeout) values ("+nid+",'"+date+"');";
+            db.executeStatement(query4);
             System.out.println("User "+username+" created successfully!! ");
             list1=createUserList();            
         }
@@ -199,12 +235,18 @@ public class Mailbox {
         }else System.out.println("Can't find the user "+username+".\n\n");
     }
     
+    public static void clearConsole() throws IOException, InterruptedException{
+        b.inheritIO().start().waitFor();
+        String timeNow=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
+        System.out.println("User: \""+u.getUser_name()+"\", online for: "+User.diffTime(timeNow, u.getTimeIn())+" minutes.");
+    }
+    
     public static boolean systemLogIn(){
         boolean bool1=true;
         String c;
         while(bool1){
 //        b.inheritIO().start().waitFor(); //cls
-            System.out.println("1. Log in to mailbox. \n2. Exit");
+            System.out.println("1. Log in to mailbox. \n2. Exit mailbox.");
             c=sc.nextLine();
             if (c.equals("1")){
                 u=logInScreen(u,list1);
@@ -216,13 +258,19 @@ public class Mailbox {
         return bool1;
     }
     
+    public static void logOut(){
+        String timeNow=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
+        String query="update last_online set timeout='"+timeNow+"' where id="+u.getId()+";";
+        db.executeStatement(query);
+    }
+    
     public static boolean showMenu() throws SQLException, IOException, InterruptedException{
-        b.inheritIO().start().waitFor(); //cls
+//        b.inheritIO().start().waitFor(); //cls
         String ch;
         boolean bool2=true;
         while (bool2){
             System.out.println("\n\n\nWhat action do you want to do? \n"); 
-            System.out.println("1. Exit. \n2. View your messages. \n3. Send a message. \n4. View messages of another user. ");
+            System.out.println("1. Log out. \n2. View your messages. \n3. Send a message. \n4. View messages of another user. ");
             if (u.getRole().equals("medium") || u.getRole().equals("super")) {System.out.println("5. Edit someone's message(s). ");}
             if (u.getRole().equals("super")){System.out.println("6. Delete someone's message(s). ");}
             if (u.getUser_name().equals("admin"))System.out.println("7. Create new user. \n8. Change a user's type. (normal, medium, super)");
@@ -232,26 +280,30 @@ public class Mailbox {
         return bool2;       
     }
     
-    public static boolean chooseCh(String ch) throws SQLException{
+    public static boolean chooseCh(String ch) throws SQLException, IOException, InterruptedException{
         boolean bool3=true;
         switch (ch){
             case "1" :  bool3=false;
+                        logOut();
                         break;
             case "2" :  viewMyMessages();
                         pressAnyKeyToContinue();
                         break;
-            case "3" :  System.out.println("Send message to? ");
+            case "3" :  clearConsole();
+                        System.out.println("Send message to? ");
                         String k=sc.nextLine();
                         sendMessage(k);
                         break;
                         
-            case "4" :  System.out.println("Enter the username of the user you want to view the inbox.. ");
+            case "4" :  clearConsole();
+                        System.out.println("Enter the username of the user you want to view the inbox.. ");
                         String l=sc.nextLine();
                         viewMessages(l);
                         pressAnyKeyToContinue();
                         break;
                         
             case "5" :  if (u.getRole().equals("super") || u.getRole().equals("medium")){
+                        clearConsole();
                         System.out.println("Enter the username of the user you want to edit messages from his/her inbox.. ");
                         String m=sc.nextLine();
                         editMessages(m);
@@ -260,6 +312,7 @@ public class Mailbox {
                         else {System.out.println("Invalid input. Please select 1-4.. \n"); break;}
                         
             case "6" :  if (u.getRole().equals("super")){
+                        clearConsole();
                         System.out.println("Enter the username of the user you want to delete messages from his/her inbox.. ");
                         String n=sc.nextLine();
                         deleteMessages(n);
@@ -268,7 +321,7 @@ public class Mailbox {
                         else if (u.getRole().equals("medium")){System.out.println("Invalid input. Please select 1-5.. \n"); break;}
                         else {System.out.println("Invalid input. Please select 1-4.. \n"); break;}
             
-            case "7" :  if (u.getUser_name().equals("admin")) {createNew(); pressAnyKeyToContinue(); break;}
+            case "7" :  if (u.getUser_name().equals("admin")) {clearConsole(); createNew(); pressAnyKeyToContinue(); break;}
                         else {
                             if (u.getRole().equals("normal"))System.out.println("Invalid input. Please select 1-4.. \n");
                             if (u.getRole().equals("medium"))System.out.println("Invalid input. Please select 1-5.. \n");
@@ -276,6 +329,7 @@ public class Mailbox {
                         break;}
             
             case "8" :  if (u.getUser_name().equals("admin")) {
+                        clearConsole();
                         System.out.println("Please enter the username you want to change the type.. ");
                         String o=sc.nextLine();
                         changeUserType(o); 
@@ -301,14 +355,14 @@ public class Mailbox {
     public static void main (String args[]) throws SQLException, IOException, InterruptedException{        
         db.connect(URL,USR,PSD);
         list1=createUserList(); 
-//        b.inheritIO().start().waitFor(); //cls
+        b.inheritIO().start().waitFor(); //cls
         boolean bool=systemLogIn();
         if (bool) return;
-//        b.inheritIO().start().waitFor(); //cls
+        clearConsole();
         boolean bool1=true;
         while (bool1){
         bool1=showMenu();
-//        b.inheritIO().start().waitFor(); //cls
+        clearConsole();
         }
         db.connection.close();
         sc.close();

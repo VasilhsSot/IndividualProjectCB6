@@ -1,5 +1,9 @@
 package mailservice;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class User {
 
 //variables=====================================================================
@@ -7,7 +11,8 @@ public class User {
     private String user_name;
     private String password;
     private String role;
-
+    private String timeIn;
+    private String timeOut;
 //constructors==================================================================
     public User(){
         this.role="simple";
@@ -33,6 +38,22 @@ public class User {
 //setters & getters=============================================================
     public void setId(int id) {
         this.id = id;
+    }
+    
+    public void setTimeIn(String timeIn){
+        this.timeIn=timeIn;
+    }
+    
+    public String getTimeIn(){
+        return timeIn;
+    }
+    
+    public void setTimeOut(String timeOut){
+        this.timeOut=timeOut;
+    }
+    
+    public String getTimeOut(){
+        return timeOut;
     }
 
     public void setUser_name(String user_name) {
@@ -66,5 +87,21 @@ public class User {
     @Override
     public String toString(){
         return this.getUser_name()+this.getRole();
+    }
+    
+//methods=======================================================================
+        public static double diffTime(String timeNow, String ustime){
+        Date d1=null;
+        Date d2=null;
+        double diff=0.0;
+        SimpleDateFormat format=new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        try{
+            d1=format.parse(ustime);
+            d2=format.parse(timeNow);
+        }catch (ParseException e){
+            e.printStackTrace();
+        }
+        diff=d2.getTime()-d1.getTime();
+        return diff/(60*1000);
     }
 }//~class
