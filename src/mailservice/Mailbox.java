@@ -1,5 +1,5 @@
 package mailservice;
-
+//FINAL 13-11-2018
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -263,7 +263,6 @@ public class Mailbox {
         boolean bool1=true;
         String c;
         while(bool1){
-//        b.inheritIO().start().waitFor(); //cls
             System.out.println("1. Log in to mailbox. \n2. Exit mailbox.");
             c=sc.nextLine();
             if (c.equals("1")){
