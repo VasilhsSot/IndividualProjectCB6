@@ -1,5 +1,5 @@
 package mailservice;
-//FINAL
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,8 +34,8 @@ public class Mailbox {
         db.stm=db.connection.createStatement();
         ResultSet rs=db.stm.executeQuery(q);
         while(rs.next()){
-            User b= new User(rs.getInt("id"),rs.getString("user_name"),rs.getString("user_password"),rs.getString("role"));
-            l1.add(b);
+            User usr= new User(rs.getInt("id"),rs.getString("user_name"),rs.getString("user_password"),rs.getString("role"));
+            l1.add(usr);
             }
         } catch (SQLException e){
             System.out.println("Problem with your query. ");
