@@ -231,7 +231,7 @@ public class Mailbox {
                 is=true; 
                 break;}
         }
-        if (!is)System.out.println("User \""+username+"\" does not exist. ");
+        if (!is){System.out.println("\nUser \""+username+"\" does not exist. \n"); pressAnyKeyToContinue(); }
         else {
             String query="delete from users where user_name='"+username+"';";
             db.executeStatement(query);
