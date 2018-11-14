@@ -84,13 +84,7 @@ public class Mailbox {
         }
     }
     
-    private static void pressAnyKeyToContinue(){ 
-        System.out.println("\nPress Enter key to continue...\n");
-        try{
-            System.in.read();
-        }  
-        catch(IOException e) {}  
-    }
+
     
     public static void sendMessage(String username) throws SQLException{
         String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
@@ -175,7 +169,7 @@ public class Mailbox {
         String ed=sc.nextLine();
         String query3="delete from inbox_messages where id='"+ed+"';";
         db.executeStatement(query3);  
-        System.out.println("Message deleted successfully. \n");
+        System.out.println("\nMessage deleted successfully. \n");
         pressAnyKeyToContinue();
         try{
             PrintWriter w;
@@ -224,8 +218,25 @@ public class Mailbox {
             db.executeStatement(query3);
             String query4="insert into last_online (id, timeout) values ("+nid+",'"+date+"');";
             db.executeStatement(query4);
-            System.out.println("User "+username+" created successfully!! ");
+            System.out.println("\nUser "+username+" created successfully!! \n");
             list1=createUserList();    
+            pressAnyKeyToContinue();
+        }
+    }
+    
+    public static void deleteUser (String username) throws SQLException {
+        boolean is=false;
+        for (User us: list1){
+            if (us.getUser_name().equals(username)){
+                is=true; 
+                break;}
+        }
+        if (!is)System.out.println("User \""+username+"\" does not exist. ");
+        else {
+            String query="delete from users where user_name='"+username+"';";
+            db.executeStatement(query);
+            System.out.println("\nUser '"+username+"' deleted successfully. \n");
+            list1=createUserList();
             pressAnyKeyToContinue();
         }
     }
@@ -251,6 +262,14 @@ public class Mailbox {
                 }else System.out.println("Wrong input. User's role can only be normal, medium or super.. ");
                     }
         }else System.out.println("Can't find the user "+username+".\n\n");
+    }
+    
+    private static void pressAnyKeyToContinue(){ 
+        System.out.println("\nPress Enter key to continue...\n");
+        try{
+            System.in.read();
+        }  
+        catch(IOException e) {}  
     }
     
     public static void clearConsole() throws IOException, InterruptedException{
@@ -289,7 +308,7 @@ public class Mailbox {
             System.out.println("1. Log out. \n2. View your messages. \n3. Send a message. \n4. View messages of another user. ");
             if (u.getRole().equals("medium") || u.getRole().equals("super")) {System.out.println("5. Edit someone's message(s). ");}
             if (u.getRole().equals("super")){System.out.println("6. Delete someone's message(s). ");}
-            if (u.getUser_name().equals("admin"))System.out.println("7. Create new user. \n8. Change a user's type. (normal, medium, super)");
+            if (u.getUser_name().equals("admin"))System.out.println("7. Create new user. \n8. Change a user's type. (normal, medium, super) \n9. Delete a user.");
             ch=sc.nextLine();
             bool2=chooseCh(ch);
         }
@@ -365,11 +384,25 @@ public class Mailbox {
                             if (u.getRole().equals("medium")) {System.out.println("Invalid input. Please select 1-5.. \n");clearConsole();  }
                             if (u.getRole().equals("super")) {System.out.println("Invalid input. Please select 1-6.. \n"); clearConsole();  }
                         break;}
+            
+            case "9" :  if (u.getUser_name().equals("admin")) {
+                        clearConsole();
+                        System.out.println("\n\nPlease enter the username you want to delete.. ");
+                        String o=sc.nextLine();
+                        deleteUser(o); 
+                        clearConsole();
+                        break;
+                        }
+                        else {
+                            if (u.getRole().equals("normal")) {System.out.println("Invalid input. Please select 1-4.. \n"); clearConsole();  }
+                            if (u.getRole().equals("medium")) {System.out.println("Invalid input. Please select 1-5.. \n");clearConsole();  }
+                            if (u.getRole().equals("super")) {System.out.println("Invalid input. Please select 1-6.. \n"); clearConsole();  }
+                        break;}
                         
             default :   if (u.getRole().equals("normal")) {System.out.println("Invalid input. Please select 1-4.. \n");clearConsole();  }
                         if (u.getRole().equals("medium")) {System.out.println("Invalid input. Please select 1-5.. \n"); clearConsole();  }
                         if (u.getRole().equals("super") && !u.getUser_name().equals("admin")) {System.out.println("Invalid input. Please select 1-6.. \n");clearConsole();  }
-                        if (u.getUser_name().equals("admin")) {System.out.println("Invalid input. Please select 1-8.. \n");clearConsole();  }
+                        if (u.getUser_name().equals("admin")) {System.out.println("Invalid input. Please select 1-9.. \n");clearConsole();  }
                         break;
         }
         return bool3;
