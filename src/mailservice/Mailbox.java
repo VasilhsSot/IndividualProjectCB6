@@ -188,7 +188,7 @@ public class Mailbox {
             System.out.println("\n\nType the username of the new user. ");
             username=sc.nextLine();
             for (User user: list1){
-                if (user.getUser_name().equals(username)) {
+                if (user.getUser_name().toLowerCase().equals(username.toLowerCase())) {
                     user_ex=true;
                     System.out.println("This username already exists. Please choose a different one. ");                    
                 }
