@@ -327,14 +327,14 @@ public class Mailbox {
             			clearConsole();
                         break;
             case "3" :  clearConsole();
-                        System.out.println("Send message to? ");
+                        System.out.println("\n\nSend message to? ");
                         String k=sc.nextLine();
                         sendMessage(k);
                         clearConsole();
                         break;
                         
             case "4" :  clearConsole();
-                        System.out.println("Enter the username of the user you want to view the inbox.. ");
+                        System.out.println("\n\nsEnter the username of the user you want to view the inbox.. ");
                         String l=sc.nextLine();
                         topAnnouncement(date,l);
                         viewMessages(l);  
