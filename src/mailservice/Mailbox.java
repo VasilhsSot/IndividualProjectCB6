@@ -89,10 +89,9 @@ public class Mailbox {
     public static void sendMessage(String username) throws SQLException{
         String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
         topAnnouncement(date,username);
-        boolean is=false;
+        boolean is=false,bool=true;
         int uid=-1, mid=-1;
-        System.out.println("\nType your message (max 250 characters): ");
-        String mes=sc.nextLine();
+        String mes="";
         for (User us: list1){
             if (us.getUser_name().equals(username)){
                 is=true; 
@@ -100,6 +99,12 @@ public class Mailbox {
                 break;}
         }
         if (is){
+            while (bool){
+                System.out.println("\nType your message (max 250 characters): ");
+                mes=sc.nextLine();
+                if (mes.length()>250)System.out.println("\nThe message should not be more than 250 characters. ");
+                else bool=false;            
+            }
             String q="insert into inbox_messages (id,user_id,sender,date,message) values (null,"+uid+",'"+u.getUser_name()+"','"+date+"','"+mes+"');";
             db.executeStatement(q);
             String q2="select id from inbox_messages where user_id="+uid+" and date='"+date+"';";
@@ -141,12 +146,18 @@ public class Mailbox {
     
     public static void editMessages(String username) throws SQLException{
         String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
+        String nm="";
+        boolean bool=true;
         topAnnouncement(date,username);
         System.out.println("\n\nChoose the message you would like to edit by choosing the message id. \n");
         viewMessages(username);
         String ed=sc.nextLine();
-        System.out.println("Write a new message to replace this one. ");
-        String nm=sc.nextLine();
+        while(bool){
+            System.out.println("\nWrite a new message to replace this one. ");
+            nm=sc.nextLine();
+            if (nm.length()>250)System.out.println("\nMessage should not be more than 250 characters. ");
+            else bool=false;
+        }
         String query3="update inbox_messages set message='"+nm+"' where id="+ed+";";
         db.executeStatement(query3);        
         try{
@@ -181,23 +192,30 @@ public class Mailbox {
     
     public static void createNew() throws SQLException{
         String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
-        boolean tycheck=true, user_ex=false, bool=true;
-        String ty="normal",username="";
+        boolean tycheck=true, user_ex=false, bool=true, bool2=true;
+        String ty="normal",username="",pas="";
         while(bool){
             user_ex=false;
-            System.out.println("\n\nType the username of the new user. ");
+            System.out.println("\n\nType the username of the new user. (max 45 characters) ");
             username=sc.nextLine();
             for (User user: list1){
                 if (user.getUser_name().toLowerCase().equals(username.toLowerCase())) {
                     user_ex=true;
-                    System.out.println("This username already exists. Please choose a different one. ");                    
+                    System.out.println("\nThis username already exists. Please choose a different one. ");                    
                 }
             }
-            if (!user_ex) bool=false;
+            if (!user_ex){if (username.length()>45){System.out.println("\nUsername should be less than 45 characters.");}
+            else bool=false;
+            }
         }
         if (!user_ex){
-            System.out.println("Type the password of user \""+username+"\".. ");
-            String pas=sc.nextLine();
+            while(bool2){
+                System.out.println("Type the password of user \""+username+"\". (max 45 characters) ");
+                pas=sc.nextLine();
+                if (pas.length()>45){
+                    System.out.println("\nPassword should be less than 45 characters. ");
+                }else bool2=false;
+            }
             while(tycheck){
                 System.out.println("What user type is "+username+" gonna be? (normal, medium, super)");
                 ty=sc.nextLine();
