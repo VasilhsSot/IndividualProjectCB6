@@ -24,7 +24,7 @@ public class Mailbox {
     public static final String URL= "jdbc:mysql://127.0.0.1:3306/mailservice";
     public static final String USR="admin";
     public static final String PSD="admin";
-    
+    public static ProcessBuilder b=new ProcessBuilder("cmd", "/c", "cls");
 
 //methods=======================================================================
     public static List<User> createUserList() throws SQLException{
@@ -88,7 +88,6 @@ public class Mailbox {
     
     public static void sendMessage(String username) throws SQLException{
         String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
-        topAnnouncement(date,username);
         boolean is=false,bool=true;
         int uid=-1, mid=-1;
         String mes="";
@@ -99,6 +98,7 @@ public class Mailbox {
                 break;}
         }
         if (is){
+        	topAnnouncement(date,username);
             while (bool){
                 System.out.println("\nType your message (max 250 characters): ");
                 mes=sc.nextLine();
@@ -123,7 +123,7 @@ public class Mailbox {
                 w.write("Message id:"+mid+"\nDate: "+date+", "+u.getUser_name()+" to "+username+" \nmessage: "+mes+"\n\n\n");
                 w.close();
             }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
-        }else System.out.println("Can't find the user "+username+".\n\n");
+        }else System.out.println("\n"+username+" does not exist. ");
     }    
     
     public static void topAnnouncement(String date,String username) throws SQLException{        
@@ -147,47 +147,62 @@ public class Mailbox {
     public static void editMessages(String username) throws SQLException{
         String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
         String nm="";
-        boolean bool=true;
-        topAnnouncement(date,username);
-        System.out.println("\n\nChoose the message you would like to edit by choosing the message id. \n");
-        viewMessages(username);
-        String ed=sc.nextLine();
-        while(bool){
-            System.out.println("\nWrite a new message to replace this one. (max 250 characters) ");
-            nm=sc.nextLine();
-            if (nm.length()>250)System.out.println("\nMessage should not be more than 250 characters. ");
-            else bool=false;
+        boolean bool=true,is=false;
+        for (User us: list1){
+            if (us.getUser_name().equals(username)){
+                is=true;
+                break;}
         }
-        String query3="update inbox_messages set message='"+nm+"' where id="+ed+";";
-        db.executeStatement(query3);        
-        try{
-            PrintWriter w;
-                w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
-                w.write(date+" \""+u.getUser_name()+"\" edited message with id:"+ed+" to\nmessage: "+nm+"\n\n\n");
-                w.close();
-        }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
+        if(is) {
+	        topAnnouncement(date,username);
+	        System.out.println("\n\nChoose the message you would like to edit by choosing the message id. \n");
+	        viewMessages(username);
+	        String ed=sc.nextLine();
+	        while(bool){
+	            System.out.println("\nWrite a new message to replace this one. (max 250 characters) ");
+	            nm=sc.nextLine();
+	            if (nm.length()>250)System.out.println("\nMessage should not be more than 250 characters. ");
+	            else bool=false;
+	        }
+	        String query3="update inbox_messages set message='"+nm+"' where id="+ed+";";
+	        db.executeStatement(query3);        
+	        try{
+	            PrintWriter w;
+	                w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
+	                w.write(date+" \""+u.getUser_name()+"\" edited message with id:"+ed+" to\nmessage: "+nm+"\n\n\n");
+	                w.close();
+	        }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
+        }else System.out.println("\n"+username+" does not exist. ");
     }
     
     public static void deleteMessages (String username) throws SQLException{
         List<String> l=new ArrayList<>();
-        l=createMessageList(username);
-        String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
-        topAnnouncement(date,username);
-        System.out.println("\n\nChoose the message you would like to delete by choosing the message id. \n");
-        for(String s:l){
-            System.out.println(s);
+        boolean is=false;
+        for (User us: list1){
+            if (us.getUser_name().equals(username)){
+                is=true;
+                break;}
         }
-        String ed=sc.nextLine();
-        String query3="delete from inbox_messages where id='"+ed+"';";
-        db.executeStatement(query3);  
-        System.out.println("\nMessage deleted successfully. \n");
-        pressAnyKeyToContinue();
-        try{
-            PrintWriter w;
-                w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
-                w.write(date+" \""+u.getUser_name()+"\" deleted message with id:"+ed+".\n\n\n");
-                w.close();
-        }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
+        if(is) {
+	        l=createMessageList(username);
+	        String date=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
+	        topAnnouncement(date,username);
+	        System.out.println("\n\nChoose the message you would like to delete by choosing the message id. \n");
+	        for(String s:l){
+	            System.out.println(s);
+	        }
+	        String ed=sc.nextLine();
+	        String query3="delete from inbox_messages where id='"+ed+"';";
+	        db.executeStatement(query3);  
+	        System.out.println("\nMessage deleted successfully. \n");
+	        pressAnyKeyToContinue();
+	        try{
+	            PrintWriter w;
+	                w=new PrintWriter(new FileOutputStream(new File(username+"'s inbox.txt"),true));
+	                w.write(date+" \""+u.getUser_name()+"\" deleted message with id:"+ed+".\n\n\n");
+	                w.close();
+	        }catch(FileNotFoundException e){System.out.println("Error exporting message log file.");}
+        }else System.out.println("\n"+username+" does not exist. ");
     }
     
     public static void createNew() throws SQLException{
@@ -292,8 +307,8 @@ public class Mailbox {
     
     public static void clearConsole() throws IOException, InterruptedException{
 		//next 2 lines commented to remove clear console ability. The method just shows on top the message.
-		//ProcessBuilder b=new ProcessBuilder("cmd", "/c", "cls");
-        //b.inheritIO().start().waitFor();
+//		ProcessBuilder b=new ProcessBuilder("cmd", "/c", "cls");
+        b.inheritIO().start().waitFor();
         String timeNow=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
         System.out.println("User: \""+u.getUser_name()+"\", online for: "+User.diffTime(timeNow, u.getTimeIn())+" minutes.");
     }
@@ -350,14 +365,24 @@ public class Mailbox {
                         System.out.println("\n\nSend message to? ");
                         String k=sc.nextLine();
                         sendMessage(k);
+                        pressAnyKeyToContinue();
                         clearConsole();
                         break;
                         
             case "4" :  clearConsole();
-                        System.out.println("\n\nsEnter the username of the user you want to view the inbox.. ");
+                        System.out.println("\n\nEnter the username of the user you want to view the inbox.. ");
                         String l=sc.nextLine();
-                        topAnnouncement(date,l);
-                        viewMessages(l);  
+                        boolean is=false;
+                        for (User p:list1) {
+                        	if(p.getUser_name().equals(l)) {
+                        		is=true;
+                        		break;
+                        	}
+                        }
+                        if(is) {
+	                        topAnnouncement(date,l);
+	                        viewMessages(l); 
+                        }else System.out.println("\n"+l+" does not exist. ");
                         pressAnyKeyToContinue();
                         clearConsole();
                         break;
@@ -367,28 +392,30 @@ public class Mailbox {
                         System.out.println("\n\nEnter the username of the user you want to edit messages from his/her inbox.. ");
                         String m=sc.nextLine();
                         editMessages(m);
+                        pressAnyKeyToContinue();
                         clearConsole();
                         break;} 
-                        else {System.out.println("Invalid input. Please select 1-4.. \n"); clearConsole(); break;}
+                        else {clearConsole(); System.out.println("\nInvalid input. Please select 1-4.. \n"); break;}
                         
             case "6" :  if (u.getRole().equals("super")){
                         clearConsole();
                         System.out.println("\n\nEnter the username of the user you want to delete messages from his/her inbox.. ");
                         String n=sc.nextLine();
                         deleteMessages(n);
+                        pressAnyKeyToContinue();
                         clearConsole();
                         break;} 
-                        else if (u.getRole().equals("medium")){System.out.println("Invalid input. Please select 1-5.. \n");
+                        else if (u.getRole().equals("medium")){clearConsole(); System.out.println("\nInvalid input. Please select 1-5.. \n");
                         break;}
-                        else {System.out.println("Invalid input. Please select 1-4.. \n"); 
+                        else {clearConsole(); System.out.println("\nInvalid input. Please select 1-4.. \n"); 
                          
                         break;}
             
             case "7" :  if (u.getUser_name().equals("admin")) {clearConsole(); createNew(); break;}
                         else {
-                            if (u.getRole().equals("normal")) {System.out.println("Invalid input. Please select 1-4.. \n");clearConsole();   }
-                            if (u.getRole().equals("medium")) {System.out.println("Invalid input. Please select 1-5.. \n");clearConsole();   }
-                            if (u.getRole().equals("super")) {System.out.println("Invalid input. Please select 1-6.. \n"); clearConsole();  }
+                            if (u.getRole().equals("normal")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-4.. \n"); }
+                            if (u.getRole().equals("medium")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-5.. \n"); }
+                            if (u.getRole().equals("super")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-6.. \n"); }
                         break;}
             
             case "8" :  if (u.getUser_name().equals("admin")) {
@@ -400,9 +427,9 @@ public class Mailbox {
                         break;
                         }
                         else {
-                            if (u.getRole().equals("normal")) {System.out.println("Invalid input. Please select 1-4.. \n"); clearConsole();  }
-                            if (u.getRole().equals("medium")) {System.out.println("Invalid input. Please select 1-5.. \n");clearConsole();  }
-                            if (u.getRole().equals("super")) {System.out.println("Invalid input. Please select 1-6.. \n"); clearConsole();  }
+                            if (u.getRole().equals("normal")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-4.. \n"); }
+                            if (u.getRole().equals("medium")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-5.. \n");}
+                            if (u.getRole().equals("super")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-6.. \n"); }
                         break;}
             
             case "9" :  if (u.getUser_name().equals("admin")) {
@@ -414,15 +441,15 @@ public class Mailbox {
                         break;
                         }
                         else {
-                            if (u.getRole().equals("normal")) {System.out.println("Invalid input. Please select 1-4.. \n"); clearConsole();  }
-                            if (u.getRole().equals("medium")) {System.out.println("Invalid input. Please select 1-5.. \n");clearConsole();  }
-                            if (u.getRole().equals("super")) {System.out.println("Invalid input. Please select 1-6.. \n"); clearConsole();  }
+                            if (u.getRole().equals("normal")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-4.. \n"); }
+                            if (u.getRole().equals("medium")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-5.. \n"); }
+                            if (u.getRole().equals("super")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-6.. \n"); }
                         break;}
                         
-            default :   if (u.getRole().equals("normal")) {System.out.println("Invalid input. Please select 1-4.. \n");clearConsole();  }
-                        if (u.getRole().equals("medium")) {System.out.println("Invalid input. Please select 1-5.. \n"); clearConsole();  }
-                        if (u.getRole().equals("super") && !u.getUser_name().equals("admin")) {System.out.println("Invalid input. Please select 1-6.. \n");clearConsole();  }
-                        if (u.getUser_name().equals("admin")) {System.out.println("Invalid input. Please select 1-9.. \n");clearConsole();  }
+            default :   if (u.getRole().equals("normal")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-4.. \n"); }
+                        if (u.getRole().equals("medium")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-5.. \n");  }
+                        if (u.getRole().equals("super") && !u.getUser_name().equals("admin")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-6.. \n");  }
+                        if (u.getUser_name().equals("admin")) {clearConsole(); System.out.println("\nInvalid input. Please select 1-9.. \n");  }
                         break;
         }
         return bool3;
@@ -432,6 +459,7 @@ public class Mailbox {
     public static void main (String args[]) throws SQLException, IOException, InterruptedException{        
         db.connect(URL,USR,PSD);
         list1=createUserList(); 
+        b.inheritIO().start().waitFor();
         boolean bool=systemLogIn();
         if (bool) return; //log out
         clearConsole();
