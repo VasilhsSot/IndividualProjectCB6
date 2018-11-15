@@ -34,7 +34,7 @@ public class LogInScreen {
         if (bool1) {
             System.out.println("\nThere's no user with the credentials you provided. \n\n");
         }else if(bool2) {
-            System.out.println("\nPassword you entered is wrong. ");
+            System.out.println("\nPassword you entered is wrong. \n\n");
         }
         String timeNow=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
         u.setTimeIn(timeNow);
