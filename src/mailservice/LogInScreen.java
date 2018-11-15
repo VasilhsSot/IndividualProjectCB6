@@ -20,15 +20,22 @@ public class LogInScreen {
     }
     
     public static User logIn(String user_name, String password, List<User> list){
-        boolean bool=true;
+        boolean bool1=true, bool2=true;
         User u=new User();
         for (User us: list){
-            if(user_name.equals(us.getUser_name())){
-                bool=false;
-                u= new User(us.getId(),us.getUser_name(),us.getPassword(),us.getRole());
+            if(user_name.toLowerCase().equals(us.getUser_name().toLowerCase())){
+                bool1=false;
+                if (password.equals(us.getPassword())){
+                    bool2=false;
+                    u= new User(us.getId(),us.getUser_name(),us.getPassword(),us.getRole());
                 }
+            }
         }
-        if (bool) System.out.println("\nThere's no user with the credentials you provided. \n\n");
+        if (bool1) {
+            System.out.println("\nThere's no user with the credentials you provided. \n\n");
+        }else if(bool2) {
+            System.out.println("\nPassword you entered is wrong. ");
+        }
         String timeNow=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
         u.setTimeIn(timeNow);
         return u;
