@@ -1,5 +1,5 @@
 package mailservice;
-//FINAL 14-11-2018
+//FINAL 15-11-2018
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -353,7 +353,7 @@ public class Mailbox {
                         
             case "6" :  if (u.getRole().equals("super")){
                         clearConsole();
-                        System.out.println("Enter the username of the user you want to delete messages from his/her inbox.. ");
+                        System.out.println("\n\nEnter the username of the user you want to delete messages from his/her inbox.. ");
                         String n=sc.nextLine();
                         deleteMessages(n);
                         clearConsole();
