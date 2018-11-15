@@ -153,7 +153,7 @@ public class Mailbox {
         viewMessages(username);
         String ed=sc.nextLine();
         while(bool){
-            System.out.println("\nWrite a new message to replace this one. ");
+            System.out.println("\nWrite a new message to replace this one. (max 250 characters) ");
             nm=sc.nextLine();
             if (nm.length()>250)System.out.println("\nMessage should not be more than 250 characters. ");
             else bool=false;
