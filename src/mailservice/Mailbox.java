@@ -1,5 +1,5 @@
 package mailservice;
-//FINAL 15-11-2018
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -24,7 +24,7 @@ public class Mailbox {
     public static final String URL= "jdbc:mysql://127.0.0.1:3306/mailservice";
     public static final String USR="admin";
     public static final String PSD="admin";
-    public static final ProcessBuilder b=new ProcessBuilder("cmd", "/c", "cls");
+    
 
 //methods=======================================================================
     public static List<User> createUserList() throws SQLException{
@@ -273,7 +273,9 @@ public class Mailbox {
     }
     
     public static void clearConsole() throws IOException, InterruptedException{
-        b.inheritIO().start().waitFor();
+		//next 2 lines commented to remove clear console ability. The method just shows on top the message.
+		//ProcessBuilder b=new ProcessBuilder("cmd", "/c", "cls");
+        //b.inheritIO().start().waitFor();
         String timeNow=new SimpleDateFormat("dd/MM/yyyy HH:mm").format(Calendar.getInstance().getTime());
         System.out.println("User: \""+u.getUser_name()+"\", online for: "+User.diffTime(timeNow, u.getTimeIn())+" minutes.");
     }
@@ -412,7 +414,6 @@ public class Mailbox {
     public static void main (String args[]) throws SQLException, IOException, InterruptedException{        
         db.connect(URL,USR,PSD);
         list1=createUserList(); 
-        b.inheritIO().start().waitFor(); //cls
         boolean bool=systemLogIn();
         if (bool) return; //log out
         clearConsole();
